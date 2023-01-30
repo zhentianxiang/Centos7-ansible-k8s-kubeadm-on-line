@@ -1,0 +1,8 @@
+---
+- name: kernal optimization
+  copy:
+    src: my-default.conf
+    dest: /etc/sysctl.d/
+
+- name: sysctl enable
+  shell: sysctl -p /etc/sysctl.d/my-default.conf

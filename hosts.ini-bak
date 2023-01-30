@@ -1,0 +1,35 @@
+[all]
+master01 ansible_connection=local  ip=192.168.80.21
+master02 ansible_host=192.168.80.22 ip=192.168.80.22 ansible_port=43999 ansible_user=yunwei
+master03 ansible_host=192.168.80.23 ip=192.168.80.23 ansible_port=43999 ansible_user=yunwei
+node01 ansible_host=192.168.80.30 ip=192.168.80.30 ansible_port=43999 ansible_user=yunwei
+lvs01 ansible_host=192.168.80.25 ip=192.168.80.25 ansible_port=43999 ansible_user=yunwei
+lvs02 ansible_host=192.168.80.26 ip=192.168.80.26 ansible_port=43999 ansible_user=yunwei
+
+# 对应更改all.yml 定义的master ip变量
+[master]
+master01
+master02
+master03
+
+[node]
+node01
+
+# 多master高可用, 单master忽略该项
+[ha]
+master01 ha_name=ha-master
+master02 ha_name=ha-backup
+master03 ha_name=ha-backup
+
+# 高可用+负载均衡, 需多计划2台机器做lvs, 无需lvs可忽略该项
+[lvs]
+lvs01 lvs_name=lvs-master
+lvs02 lvs_name=lvs-backup
+
+#24小时token过期后添加node节点
+[newnode]
+
+[k8s:children]
+master
+node
+newnode

@@ -1,0 +1,49 @@
+---
+# 需在在所有master,node节点上运行
+
+- name: set hostname
+  raw: "hostnamectl set-hostname {{ inventory_hostname }}"
+
+- name: add hosts
+  template: src=hosts.j2 dest=/etc/hosts
+
+- name: 加载 br_netfilter 模块
+  shell: modprobe br_netfilter
+
+- name: seting k8s kernel
+  copy:
+    src: k8s.conf
+    dest: /etc/sysctl.d/
+
+- name: sysctl enable
+  shell: sysctl -p /etc/sysctl.d/k8s.conf
+
+- name: seting swapoff
+  raw: swapoff -a
+
+- name: setting fstab
+  replace:
+    path: /etc/fstab
+    regexp: '^/(.*) swap (.*)'
+    replace: '#/\1 swap \2'
+    
+- name: Add ipvs modules
+  copy:
+    src: ipvs.modules
+    dest: /etc/sysconfig/modules/
+    mode: '0755'
+
+- name: enable ipvs
+  shell: "/bin/bash /etc/sysconfig/modules/ipvs.modules"
+
+- name: install package
+  package:
+    name:
+      - conntrack
+      - ipvsadm
+      - ipset
+      - jq
+      - curl
+      - sysstat
+      - libseccomp
+    state: latest

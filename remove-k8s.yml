@@ -1,0 +1,62 @@
+---
+- hosts: k8s
+  gather_facts: False
+  tasks:
+    - name: 移除k8s集群配置
+      ignore_errors: yes
+      shell: "kubeadm reset -f"
+    
+    - name: 卸载相关软件
+      package:
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - keepalived
+        state: absent
+
+    - name: 开启swap
+      replace:
+        path: /etc/fstab
+        regexp: '^#/(.*) swap (.*)'
+        replace: '/\1 swap \2'
+
+- hosts: lvs
+  gather_facts: false
+  tasks: 
+    - name: 移出lvs软件
+      package:
+        name:
+          - ipvsadm
+          - keepalived
+        state: absent
+
+- hosts: master
+  gather_facts: false
+  tasks:
+    - name: 关闭回环地址
+      ignore_errors: yes
+      shell: "/bin/bash /usr/local/bin/rsrip.sh stop >/dev/null 2>&1"
+
+    - name: 关闭回环地址自启
+      ignore_errors: yes
+      lineinfile:
+        dest: /etc/rc.d/rc.local
+        regexp: "^/(.*)/rsrip.sh"
+        state: absent
+
+    - name: 去除kubectl补全
+      ignore_errors: yes
+      lineinfile:
+        dest: ~/.bashrc
+        regexp: "kubectl"
+        state: absent
+
+- hosts: k8s
+  gather_facts: false
+  tasks:
+    - name: 1分钟后重启k8s服务器
+      shell: "shutdown -r 1"

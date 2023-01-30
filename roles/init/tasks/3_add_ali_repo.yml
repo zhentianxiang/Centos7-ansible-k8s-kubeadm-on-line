@@ -1,0 +1,18 @@
+---
+- name: add ali base repo
+  copy:
+    src: Centos-ali.repo
+    dest: "/etc/yum.repos.d/CentOS-Base.repo"
+    backup: yes
+
+- name: add ali epel repo
+  copy:
+    src: epel-ali.repo
+    dest: "/etc/yum.repos.d/epel.repo"
+    backup: yes
+
+- name: yum makecache
+  raw: "{{ item }}"
+  with_items:
+    - "yum clean all"
+    - "yum makecache fast -y"

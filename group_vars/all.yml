@@ -1,0 +1,43 @@
+# 安装目录 
+tmp_dir: '/opt/k8s'
+addons_dir: '/opt/k8s/addons'
+
+# docker-ce 安装信息
+docker_ce_repo: 'http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo'
+docker_ce: 'docker-ce-19.03.11'
+docker_ce_cli: 'docker-ce-cli-19.03.11'
+containerd: 'containerd.io-1.2.13'
+
+# kubectl,kubeadm,kubelet version
+kube_version: '1.20.1'
+
+# k8s version
+k8s_version: 'v1.20.1'
+
+# 所需 images 信息
+k8s_api: 'kube-apiserver'
+k8s_controller: 'kube-controller-manager'
+k8s_scheduler: 'kube-scheduler'
+k8s_proxy: 'kube-proxy'
+k8s_etcd: 'etcd:3.4.3-0'
+k8s_pause: 'pause:3.1'
+k8s_coredns: 'coredns:1.6.5'
+
+# images tag 信息, GCR_URL 地址不能修改, Other_URL 可以修改为自己的镜像源，如harbor地址
+GCR_URL: k8s.gcr.io
+Other_URL: registry.cn-hangzhou.aliyuncs.com/google_containers
+
+# 高可用，如果部署单Master，配置为单Master IP
+vip: '192.168.229.100'
+nic: 'ens33'  #keepalived 调用接口
+api_vip_hosts: '192.168.229.100'
+admin_port: '30443' #与roles/addons/files/kubernetes-dashboard.yaml 保持一致
+
+# keepalive 部署
+Virtual_Router_ID: '55'
+
+
+# CIN 插件配置
+service_cidr: '10.96.0.0/12'
+cluster_dns: '10.96.0.1'   
+pod_cidr: '10.244.0.0/16'

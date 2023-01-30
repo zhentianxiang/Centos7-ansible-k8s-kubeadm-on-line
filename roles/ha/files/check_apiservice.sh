@@ -1,3 +1,8 @@
-#!/bin/sh
+#!/bin/bash
+count=$(ss -antp |grep 16443 |egrep -cv "grep|$$")
 
-netstat -lntp |grep 6443 || exit 1
+if [ "$count" -eq 0 ];then
+    exit 1
+else
+    exit 0
+fi

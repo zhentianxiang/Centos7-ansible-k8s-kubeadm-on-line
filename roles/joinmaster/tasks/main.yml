@@ -95,14 +95,3 @@
     state: started
   delegate_to: localhost
   ignore_errors: yes  # 忽略错误，因为在 Kubernetes 启动之前可能会超时
-
-- name: 拷贝 k8s 集群证书续费脚本
-  template:
-    src: updated-kubeadm-cert.sh.j2
-    dest: "{{ tmp_dir }}/updated-kubeadm-cert.sh"
-    mode: '0755'
-
-- name: 续费k8s集群tls通信证书时间为10年
-  ignore_errors: yes
-  shell: "/bin/bash {{ tmp_dir }}/updated-kubeadm-cert.sh all  >/dev/null 2>&1"
-  failed_when: false

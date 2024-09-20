@@ -21,9 +21,16 @@
 [root@k8s-master1 ~]# ssh-keygen -t rsa
 
 [root@k8s-master1 ~]# vim hosts.txt
-11.0.1.29
-11.0.1.30
-11.0.1.31
+10.4.212.151
+10.4.212.152
+10.4.212.153
+10.4.212.154
+10.4.212.155
+10.4.212.156
+10.4.212.157
+10.4.212.158
+10.4.212.159
+10.4.212.160
 
 [root@k8s-master1 ~]# for host in $(cat iplist.txt); do sshpass -p 'your_password' ssh-copy-id -o StrictHostKeyChecking=no 'your_username'@$host; done
 

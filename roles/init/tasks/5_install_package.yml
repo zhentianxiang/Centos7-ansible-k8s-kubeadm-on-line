@@ -16,4 +16,6 @@
       - make
       - openssl-devel
       - iptables-services
+      - iscsi-initiator-utils
+      #- glusterfs-fuse
     state: latest

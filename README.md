@@ -1,77 +1,92 @@
-# Kubernetes kubeadm 高可用集群自动部署
-## 安装条件
-```
-环境： Centos 7.x, ansible2
-适用k8s版本: v1.16.x,v1.17.x,v1.18.x,v1.19,v1.20.x
+### 1. 操作脚本之前先要想清楚是部署集群模式还是单master模式
+
+### 2. 检查变量文件，检查 IP 地址和端口好的配置，不要漏缺，检查网卡名称配置
+
+### 3. 升级内核
+
+```sh
+# 提前下载到本地，避免网络问题漫长的等待
+[root@k8s-master1 ~]# wget https://linux.cc.iitk.ac.in/mirror/centos/elrepo/kernel/el7/x86_64/RPMS/kernel-lt-5.4.160-1.el7.elrepo.x86_64.rpm
+[root@k8s-master1 ~]# ansible -i hosts.ini k8s -m copy -a "src=./kernel-lt-5.4.160-1.el7.elrepo.x86_64.rpm dest=/tmp/kernel-lt-5.4.160-1.el7.elrepo.x86_64.rpm mode=0644" --become
+[root@k8s-master1 ~]# ansible-playbook -i hosts.ini install_kernel.yml
+[root@k8s-master1 ~]# wget https://github.com/etcd-io/etcd/releases/download/v3.5.1/etcd-v3.5.1-linux-amd64.tar.gz
+[root@k8s-master1 ~]# ansible -i hosts.ini k8s -m copy -a "src=./etcd-v3.5.1-linux-amd64.tar.gz dest=/usr/local/src/etcd-v3.5.1-linux-amd64.tar.gz mode=0644" --become
 ```
 
-### 1、修改Ansible文件
-
-修改hosts文件，根据规划修改对应IP和名称
-```
-# vi hosts.ini
-...
-```
-
-修改group_vars/all.yml文件, 修改k8s版本等信息
-```
-# vim group_vars/all.yml
-...
-```
-### 3、一键部署
-
-测试ansible是否能连接服务器, 显示root权限即可
+### 4. 运行脚本启动集群
 
 ```
-ansible -i hosts.ini all -m shell -a "whoami"
+[root@k8s-master1 ~]# yum -y install ansible sshpass
+
+[root@k8s-master1 ~]# ssh-keygen -t rsa
+
+[root@k8s-master1 ~]# vim hosts.txt
+11.0.1.29
+11.0.1.30
+11.0.1.31
+
+[root@k8s-master1 ~]# for host in $(cat iplist.txt); do sshpass -p 'your_password' ssh-copy-id -o StrictHostKeyChecking=no 'your_username'@$host; done
+
+[root@k8s-master1 ~]# ansible -i hosts.ini all -m shell -a "whoami"
+
+[root@k8s-master1 ~]# ansible-playbook -i hosts.ini multi-master-ha-deploy.yml   # 集群部署
+
+[root@k8s-master1 ~]# ansible-playbook -i hosts.ini single-master-deploy.yml  # 单节点部署
 ```
 
-单Master版：
+### 5. 验证集群
+
 ```
-ansible-playbook -i hosts.ini single-master-deploy.yml
+# 也可使用 https://etc1:2379 域名
+[root@k8s-master1 ~]# etcdctl --cacert=/etc/etcd/ssl/ca.pem --cert=/etc/etcd/ssl/server.pem --key=/etc/etcd/ssl/server-key.pem --endpoints="https://10.4.212.151:2379,https://10.4.212.152:2379,https://10.4.212.153:2379" member list -w table
++------------------+---------+-------+---------------------------+---------------------------+------------+
+|        ID        | STATUS  | NAME  |        PEER ADDRS         |       CLIENT ADDRS        | IS LEARNER |
++------------------+---------+-------+---------------------------+---------------------------+------------+
+| ac050d32d6a110ec | started | etcd3 | https://10.4.212.153:2380 | https://10.4.212.153:2379 |      false |
+| ea122616f14b31db | started | etcd2 | https://10.4.212.152:2380 | https://10.4.212.152:2379 |      false |
+| f17683dfe42353c0 | started | etcd1 | https://10.4.212.151:2380 | https://10.4.212.151:2379 |      false |
++------------------+---------+-------+---------------------------+---------------------------+------------+
+[root@k8s-master1 ~]# etcdctl --cacert=/etc/etcd/ssl/ca.pem --cert=/etc/etcd/ssl/server.pem --key=/etc/etcd/ssl/server-key.pem --endpoints="https://10.4.212.151:2379,https://10.4.212.152:2379,https://10.4.212.153:2379" endpoint status -w table
++---------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+
+|         ENDPOINT          |        ID        | VERSION | DB SIZE | IS LEADER | IS LEARNER | RAFT TERM | RAFT INDEX | RAFT APPLIED INDEX | ERRORS |
++---------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+
+| https://10.4.212.151:2379 | f17683dfe42353c0 |   3.5.1 |  6.8 MB |     false |      false |         7 |      23532 |              23532 |        |
+| https://10.4.212.152:2379 | ea122616f14b31db |   3.5.1 |  6.8 MB |     false |      false |         7 |      23532 |              23532 |        |
+| https://10.4.212.153:2379 | ac050d32d6a110ec |   3.5.1 |  6.8 MB |      true |      false |         7 |      23532 |              23532 |        |
++---------------------------+------------------+---------+---------+-----------+------------+-----------+------------+--------------------+--------+
+[root@k8s-master1 ~]# etcdctl --cacert=/etc/etcd/ssl/ca.pem --cert=/etc/etcd/ssl/server.pem --key=/etc/etcd/ssl/server-key.pem --endpoints="https://10.4.212.151:2379,https://10.4.212.152:2379,https://10.4.212.153:2379" endpoint health --write-out=table
++---------------------------+--------+-------------+-------+
+|         ENDPOINT          | HEALTH |    TOOK     | ERROR |
++---------------------------+--------+-------------+-------+
+| https://10.4.212.152:2379 |   true | 21.748801ms |       |
+| https://10.4.212.151:2379 |   true | 21.666785ms |       |
+| https://10.4.212.153:2379 |   true | 24.024215ms |       |
++---------------------------+--------+-------------+-------+
+
+[root@k8s-master1 ~]# kubectl get cs
+
+[root@k8s-master1 ~]# kubectl get node
+
+[root@k8s-master1 ~]# kubectl get pods -A
+
+[root@k8s-master1 ~]# kubectl create deployment nginx --image=harbor.meta42.indc.vnet.com/library/nginx:latest --replicas=4
+
+[root@k8s-master1 ~]# kubectl expose deployment nginx --port=80 --target-port=80 --type=NodePort
 ```
 
-Master-HA 版：
-```
-ansible-playbook -i hosts.ini multi-master-ha-deploy.yml
+### 7. 调整 kube 启动参数
+
+```sh
+# 请手动执行以下命令来修改 kube 自定义配置：
+[root@k8s-master1 ~]# sed -i "/image:/i\    - --feature-gates=RemoveSelfLink=false" /etc/kubernetes/manifests/kube-apiserver.yaml # 每台 master 都执行
+[root@k8s-master1 ~]# sed -i "s/bind-address=127.0.0.1/bind-address=0.0.0.0/g" /etc/kubernetes/manifests/kube-controller-manager.yaml # 每台 master 都执行
+[root@k8s-master1 ~]# kubectl get cm -n kube-system kube-proxy -o yaml | sed "s/metricsBindAddress: \"\"/metricsBindAddress: \"0.0.0.0\"/g" | kubectl replace -f -
+[root@k8s-master1 ~]# kubectl rollout restart daemonset -n kube-system kube-proxy
 ```
 
-多Master-LVS 版：
-```
-ansible-playbook -i hosts.ini multi-master-lvs-deploy.yml
-```
+### 8. 解决 node 节点报错
 
-### 4、部署控制
-如果安装某个阶段失败，可针对性测试.
-
-例如：只运行部署插件
 ```
-ansible-playbook -i hosts.ini single-master-deploy.yml -t master,node
-```
-
-### 5、节点扩容
-修改hosts，添加新节点ip到[newnode]标签
-```
-# vim hosts.ini
-[all]
-node02 ansible_host=192.168.80.35 ip=192.168.80.35
-
-
-
-[node]
-node02
-
-[newnode]
-node02
-...
-```
-
-执行部署
-```
-ansible-playbook -i hosts.ini add-node.yml
-```
-
-### 6、移除k8s集群
-```
-ansible-playbook -i hosts.ini remove-k8s.yml
+Sep 14 00:59:22 k8s-node1 kubelet[1611]: E0914 00:59:22.040084    1611 file_linux.go:61] "Unable to read config path" err="path does not exist, ignoring" path="/etc/kubernetes/manifests"
+[root@k8s-master1 ~]# ansible -i hosts.ini node -m shell -a "mkdir -pv /etc/kubernetes/manifests"
 ```

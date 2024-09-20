@@ -1,43 +1,58 @@
-# 安装目录 
-tmp_dir: '/opt/k8s'
-addons_dir: '/opt/k8s/addons'
+base_repo: "http://mirrors.vnet.local/CentOS-Base.repo"                               # centos base 源(我这是内网源,一个 CentOS-Base.repo 全包含了)
+epel_repo: "http://mirrors.vnet.local/CentOS-Base.repo"                               # centos base 源(我这是内网源,一个 CentOS-Base.repo 全包含了)
+docker_ce_repo: 'http://mirrors.vnet.local/CentOS-Base.repo'                          # centos docker 源(我这是内网源,一个 CentOS-Base.repo 全包含了)
+kubernetes: "http://mirrors.vnet.local/CentOS-Base.repo"                              # centos kubernetes 源(我这是内网源,一个 CentOS-Base.repo 全包含了)
 
-# docker-ce 安装信息
-docker_ce_repo: 'http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo'
-docker_ce: 'docker-ce-19.03.11'
-docker_ce_cli: 'docker-ce-cli-19.03.11'
-containerd: 'containerd.io-1.2.13'
-
-# kubectl,kubeadm,kubelet version
-kube_version: '1.20.1'
-
-# k8s version
-k8s_version: 'v1.20.1'
-
-# 所需 images 信息
-k8s_api: 'kube-apiserver'
-k8s_controller: 'kube-controller-manager'
-k8s_scheduler: 'kube-scheduler'
-k8s_proxy: 'kube-proxy'
-k8s_etcd: 'etcd:3.4.3-0'
-k8s_pause: 'pause:3.1'
-k8s_coredns: 'coredns:1.6.5'
-
-# images tag 信息, GCR_URL 地址不能修改, Other_URL 可以修改为自己的镜像源，如harbor地址
-GCR_URL: k8s.gcr.io
-Other_URL: registry.cn-hangzhou.aliyuncs.com/google_containers
-
-# 高可用，如果部署单Master，配置为单Master IP
-vip: '192.168.229.100'
-nic: 'ens33'  #keepalived 调用接口
-api_vip_hosts: '192.168.229.100'
-admin_port: '30443' #与roles/addons/files/kubernetes-dashboard.yaml 保持一致
-
-# keepalive 部署
-Virtual_Router_ID: '55'
-
-
-# CIN 插件配置
-service_cidr: '10.96.0.0/12'
-cluster_dns: '10.96.0.1'   
-pod_cidr: '10.244.0.0/16'
+tmp_dir: '/tmp/k8s-install/join'                                                      # 初始化集群一些配置文件存放位置
+docker_ce: 'docker-ce-20.10.9'                                                        # docker_ce 版本信息
+docker_ce_cli: 'docker-ce-cli-20.10.9'                                                # docker_ce_cli 版本信息
+containerd: 'containerd.io'                                                           # containerd 版本信息
+docker_data_dir: '/var/lib/docker'                                                    # docker 数据存储路径
+kube_version: '1.23.0'                                                                # kubrenetes 版本信息(ansible中 main.yml 文件引用的)
+k8s_version: 'v1.23.0'                                                                # kubrenetes 初始化定义的版本信息
+kubelet_data_dir: '/var/lib/kubelet'                                                  # kubelet (pod) 数据存储路径
+Other_URL: 'registry.cn-hangzhou.aliyuncs.com/google_containers'                      # kubrenetes 初始化拉取的镜像前缀
+k8s_extra_ips:                                                                        # kubrenetes master 节点信息(预留),并不是当前 hosts.ini 文件定义的
+  - "172.16.246.161"
+  - "172.16.246.162"
+  - "172.16.246.163"
+  - "172.16.246.164"
+  - "172.16.246.165"
+  - "172.16.246.166"
+nic: 'em1'                                                                            # keepalived 调用本机网卡
+Virtual_Router_ID: '52'                                                               # keepalived VRRP 组播协议号(每个局域网环境中唯一)
+vip: '172.16.246.150'                                                                 # keepalived vip 地址
+api_vip_hosts: apiserver.cluster.local                                                # keepalived vip 地址配置的域名
+notification_emails:
+  - acassen@firewall.loc                                                              # keepalived 邮箱
+  - failover@firewall.loc                                                             # keepalived 邮箱
+  - sysadmin@firewall.loc                                                             # keepalived 邮箱
+smtp_server: '127.0.0.1'                                                              # keepalived 邮件服务器地址
+smtp_connect_timeout: '30'                                                            # keepalived 邮件发送超时时间(模板而已,并没有启用)
+auth_pass: 'kubernetes'                                                               # keepalived auth_pass
+lb_port: '16443'                                                                      # nginx 负载均衡监听端口
+etcd_version: 'v3.5.1'                                                                # ETCD 版本
+etcd_conf: "/etc/etcd/"                                                               # ETCD 配置文件路径
+etcd_ssl: '/etc/etcd/ssl'                                                             # ETCD 证书存储路径
+etcd_data: '/var/lib/etcd'                                                            # ETCD 数据存储路径
+extra_ips:                                                                            # ETCD 节点信息(预留),并不是当前 hosts.ini 文件定义的
+  - "172.16.246.161"
+  - "172.16.246.162"
+  - "172.16.246.163"
+  - "172.16.246.164"
+  - "172.16.246.165"
+  - "172.16.246.166"
+custom_hosts:                                                                         # 自定义 hosts 解析,ansible 会帮我们自动添加
+  harbor.meta42.indc.vnet.com: 172.16.246.140
+  registry.example.com: 127.0.0.1
+  mirrors.vnet.local: 172.16.246.15
+service_cidr: '10.96.0.0/16'                                                          # service ip 段
+cluster_dns: '10.96.0.1'                                                              # kube-dns 服务器地址
+pod_cidr: '192.18.0.0/16'                                                             # pod ip 段
+calico_network: '"interface=em1,em2,em3,em4"'                                         # 服务器宿主机网卡信息
+nfs_data: '/data/k8s_nfs_storage'                                                     # nfs 数据存储目录
+nfs_ip: '172.16.246.151'                                                              # nfs 服务器地址
+k8s_app: '/tmp/k8s-install/app'                                                       # 创建了一个存放 yaml 文件的主目录
+ingress_app: '/tmp/k8s-install/app/ingress'                                           # ingress yaml 存放位置
+nfs_provisioner_app: '/tmp/k8s-install/app/nfs-provisioner_app'                       # nfs_provisioner yaml 存放位置
+calico_app: '/tmp/k8s-install/app/calico'                                             # calico yaml 存放位置

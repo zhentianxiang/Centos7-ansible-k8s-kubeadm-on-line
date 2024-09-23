@@ -13,15 +13,19 @@ k8s_version: 'v1.23.0'                                                          
 kubelet_data_dir: '/var/lib/kubelet'                                                  # kubelet (pod) 数据存储路径
 Other_URL: 'registry.cn-hangzhou.aliyuncs.com/google_containers'                      # kubrenetes 初始化拉取的镜像前缀
 k8s_extra_ips:                                                                        # kubrenetes master 节点信息(预留),并不是当前 hosts.ini 文件定义的
-  - "172.16.246.161"
-  - "172.16.246.162"
-  - "172.16.246.163"
-  - "172.16.246.164"
-  - "172.16.246.165"
-  - "172.16.246.166"
-nic: 'em1'                                                                            # keepalived 调用本机网卡
-Virtual_Router_ID: '52'                                                               # keepalived VRRP 组播协议号(每个局域网环境中唯一)
-vip: '172.16.246.150'                                                                 # keepalived vip 地址
+  - "10.4.212.151"
+  - "10.4.212.152"
+  - "10.4.212.153"
+  - "10.4.212.154"
+  - "10.4.212.155"
+  - "10.4.212.156"
+  - "10.4.212.157"
+  - "10.4.212.158"
+  - "10.4.212.159"
+  - "10.4.212.160"
+nic: 'em3'                                                                            # keepalived 调用本机网卡
+Virtual_Router_ID: '53'                                                               # keepalived VRRP 组播协议号(每个局域网环境中唯一)
+vip: '10.4.212.150'                                                                   # keepalived vip 地址
 api_vip_hosts: apiserver.cluster.local                                                # keepalived vip 地址配置的域名
 notification_emails:
   - acassen@firewall.loc                                                              # keepalived 邮箱
@@ -36,12 +40,16 @@ etcd_conf: "/etc/etcd/"                                                         
 etcd_ssl: '/etc/etcd/ssl'                                                             # ETCD 证书存储路径
 etcd_data: '/var/lib/etcd'                                                            # ETCD 数据存储路径
 extra_ips:                                                                            # ETCD 节点信息(预留),并不是当前 hosts.ini 文件定义的
-  - "172.16.246.161"
-  - "172.16.246.162"
-  - "172.16.246.163"
-  - "172.16.246.164"
-  - "172.16.246.165"
-  - "172.16.246.166"
+  - "10.4.212.151"
+  - "10.4.212.152"
+  - "10.4.212.153"
+  - "10.4.212.154"
+  - "10.4.212.155"
+  - "10.4.212.156"
+  - "10.4.212.157"
+  - "10.4.212.158"
+  - "10.4.212.159"
+  - "10.4.212.160"
 custom_hosts:                                                                         # 自定义 hosts 解析,ansible 会帮我们自动添加
   harbor.meta42.indc.vnet.com: 172.16.246.140
   registry.example.com: 127.0.0.1
@@ -51,7 +59,7 @@ cluster_dns: '10.96.0.1'                                                        
 pod_cidr: '192.18.0.0/16'                                                             # pod ip 段
 calico_network: '"interface=em1,em2,em3,em4"'                                         # 服务器宿主机网卡信息
 nfs_data: '/data/k8s_nfs_storage'                                                     # nfs 数据存储目录
-nfs_ip: '172.16.246.151'                                                              # nfs 服务器地址
+nfs_ip: '10.4.212.151'                                                                # nfs 服务器地址
 k8s_app: '/tmp/k8s-install/app'                                                       # 创建了一个存放 yaml 文件的主目录
 ingress_app: '/tmp/k8s-install/app/ingress'                                           # ingress yaml 存放位置
 nfs_provisioner_app: '/tmp/k8s-install/app/nfs-provisioner_app'                       # nfs_provisioner yaml 存放位置

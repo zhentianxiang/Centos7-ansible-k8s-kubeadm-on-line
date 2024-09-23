@@ -10,7 +10,7 @@
 [root@k8s-master1 ~]# ansible -i hosts.ini k8s -m copy -a "src=./kernel-lt-5.4.160-1.el7.elrepo.x86_64.rpm dest=/tmp/kernel-lt-5.4.160-1.el7.elrepo.x86_64.rpm mode=0644" --become
 [root@k8s-master1 ~]# ansible-playbook -i hosts.ini install_kernel.yml
 [root@k8s-master1 ~]# wget https://github.com/etcd-io/etcd/releases/download/v3.5.1/etcd-v3.5.1-linux-amd64.tar.gz
-[root@k8s-master1 ~]# ansible -i hosts.ini k8s -m copy -a "src=./etcd-v3.5.1-linux-amd64.tar.gz dest=/usr/local/src/etcd-v3.5.1-linux-amd64.tar.gz mode=0644" --become
+[root@k8s-master1 ~]# ansible -i hosts.ini etcd -m copy -a "src=./etcd-v3.5.1-linux-amd64.tar.gz dest=/usr/local/src/etcd-v3.5.1-linux-amd64.tar.gz mode=0644" --become
 ```
 
 ### 4. 运行脚本启动集群

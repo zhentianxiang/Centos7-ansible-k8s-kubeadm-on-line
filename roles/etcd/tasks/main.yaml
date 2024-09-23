@@ -30,7 +30,7 @@
   stat:
     path: /usr/local/bin/cfssl
   register: cfssl_file
-  when: "'etcd' in group_names"
+  when: "'etcd' in group_names and not cfssl_file.stat.exists and is_primary_etcd_node"
 
 - name: 下载 cfssl
   get_url:
@@ -48,7 +48,7 @@
   stat:
     path: /usr/local/bin/cfssl-json
   register: cfssl_json_file
-  when: "'etcd' in group_names"
+  when: "'etcd' in group_names and not cfssl_file.stat.exists and is_primary_etcd_node"  
 
 - name: 下载 cfssljson
   get_url:
@@ -65,7 +65,7 @@
   stat:
     path: /usr/local/bin/cfssl-certinfo
   register: cfssl_certinfo_file
-  when: "'etcd' in group_names"
+  when: "'etcd' in group_names and not cfssl_file.stat.exists and is_primary_etcd_node"
 
 - name: 下载 cfssl-certinfo
   get_url:

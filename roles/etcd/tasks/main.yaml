@@ -42,7 +42,7 @@
   retries: 10
   delay: 5
   until: download_result is succeeded
-  when: "'etcd' in group_names and not cfssl_file.stat.exists"
+  when: "'etcd' in group_names and not cfssl_file.stat.exists and is_primary_etcd_node"
 
 - name: 检查 cfssl-json 是否已存在
   stat:
@@ -59,7 +59,7 @@
   retries: 10
   delay: 5
   until: download_result is succeeded
-  when: "'etcd' in group_names and not cfssl_json_file.stat.exists"
+  when: "'etcd' in group_names and not cfssl_file.stat.exists and is_primary_etcd_node"
 
 - name: 检查 cfssl-certinfo 是否已存在
   stat:
@@ -76,7 +76,7 @@
   retries: 10
   delay: 5
   until: download_result is succeeded
-  when: "'etcd' in group_names and not cfssl_certinfo_file.stat.exists"
+  when: "'etcd' in group_names and not cfssl_file.stat.exists and is_primary_etcd_node"
 
 - name: 生成 ca-config.json 文件
   template:

@@ -96,4 +96,5 @@
 ```
 Sep 14 00:59:22 k8s-node1 kubelet[1611]: E0914 00:59:22.040084    1611 file_linux.go:61] "Unable to read config path" err="path does not exist, ignoring" path="/etc/kubernetes/manifests"
 [root@k8s-master1 ~]# ansible -i hosts.ini node -m shell -a "mkdir -pv /etc/kubernetes/manifests"
+[root@k8s-master1 ~]# ansible -i hosts.ini node -m shell -a "systemctl restart kubelet"
 ```

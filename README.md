@@ -13,6 +13,16 @@
 [root@k8s-master1 ~]# ansible -i hosts.ini etcd -m copy -a "src=./etcd-v3.5.1-linux-amd64.tar.gz dest=/usr/local/src/etcd-v3.5.1-linux-amd64.tar.gz mode=0644" --become
 ```
 
+### 4. 提前拷贝ETCD文件
+
+```sh
+# 由于网络问题可以提前搞一下，如果你的机器可以科学上网则无需
+[root@k8s-master1 ~]# ansible -i hosts.ini etcd -m copy -a "src=./roles/etcd/files/cfssl_linux-amd64 dest=/usr/local/bin/cfssl mode=0755" --become
+[root@k8s-master1 ~]# ansible -i hosts.ini etcd -m copy -a "src=./roles/etcd/files/cfssljson_linux-amd64 dest=/usr/local/bin/cfssl-json mode=0755" --become
+[root@k8s-master1 ~]# ansible -i hosts.ini etcd -m copy -a "src=./roles/etcd/files/cfssl-certinfo_linux-amd64 dest=/usr/local/bin/cfssl-certinfo mode=0755" --become
+[root@k8s-master1 ~]# ansible -i hosts.ini etcd -m copy -a "src=./roles/etcd/files/etcd-v3.5.1-linux-amd64.tar.gz dest=/usr/local/src/etcd-v3.5.1-linux-amd64.tar.gz mode=0644" --become
+```
+
 ### 4. 运行脚本启动集群
 
 ```

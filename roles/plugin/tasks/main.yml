@@ -92,29 +92,28 @@
     var: kube_proxy_restart.stdout
 
 - name: 查看 k8s 集群证书到期时间
-  shell: echo "kubeadm certs check-expiration"
+  shell: kubeadm certs check-expiration
   register: certs
   changed_when: false
 
 - name: 打印 k8s 集群证书到期时间
   debug:
-  var: certs.stdout
-
+    var: certs.stdout
 
 - name: 查看 k8s ca.crt 集群证书到期时间
-  shell: echo "openssl x509 -in /etc/kubernetes/pki/ca.crt -noout -text | grep 'Not After'"
+  shell: openssl x509 -in /etc/kubernetes/pki/ca.crt -noout -text | grep 'Not After'
   register: ca
   changed_when: false
 
 - name: 打印 ca.crt 集群证书到期时间
   debug:
-  var: ca.stdout
+    var: ca.stdout
 
 - name: 查看 k8s apiserver.crt 集群证书到期时间
-  shell: echo "openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -text | grep 'Not After'"
+  shell: openssl x509 -in /etc/kubernetes/pki/apiserver.crt -noout -text | grep 'Not After'
   register: apiserver
   changed_when: false
 
 - name: 打印 k8s apiserver.crt 集群证书到期时间
   debug:
-  var: apiserver.stdout
+    var: apiserver.stdout

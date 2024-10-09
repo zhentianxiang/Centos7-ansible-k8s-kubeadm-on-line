@@ -5,12 +5,9 @@
 ### 3. 升级内核
 
 ```sh
-# 提前下载到本地，避免网络问题漫长的等待
-[root@k8s-master1 ~]# wget https://linux.cc.iitk.ac.in/mirror/centos/elrepo/kernel/el7/x86_64/RPMS/kernel-lt-5.4.160-1.el7.elrepo.x86_64.rpm
+# 由于网络问题可以提前搞一下，如果你的机器可以科学上网则无需
 [root@k8s-master1 ~]# ansible -i hosts.ini k8s -m copy -a "src=./kernel-lt-5.4.160-1.el7.elrepo.x86_64.rpm dest=/tmp/kernel-lt-5.4.160-1.el7.elrepo.x86_64.rpm mode=0644" --become
 [root@k8s-master1 ~]# ansible-playbook -i hosts.ini install_kernel.yml
-[root@k8s-master1 ~]# wget https://github.com/etcd-io/etcd/releases/download/v3.5.1/etcd-v3.5.1-linux-amd64.tar.gz
-[root@k8s-master1 ~]# ansible -i hosts.ini etcd -m copy -a "src=./etcd-v3.5.1-linux-amd64.tar.gz dest=/usr/local/src/etcd-v3.5.1-linux-amd64.tar.gz mode=0644" --become
 ```
 
 ### 4. 提前拷贝ETCD文件

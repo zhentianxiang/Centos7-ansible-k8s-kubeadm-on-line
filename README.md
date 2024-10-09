@@ -23,7 +23,7 @@
 [root@k8s-master1 ~]# ansible -i hosts.ini etcd -m copy -a "src=./roles/etcd/files/etcd-v3.5.1-linux-amd64.tar.gz dest=/usr/local/src/etcd-v3.5.1-linux-amd64.tar.gz mode=0644" --become
 ```
 
-### 4. 运行脚本启动集群
+### 5. 运行脚本启动集群
 
 ```
 [root@k8s-master1 ~]# yum -y install ansible sshpass
@@ -51,7 +51,7 @@
 [root@k8s-master1 ~]# ansible-playbook -i hosts.ini single-master-deploy.yml  # 单节点部署
 ```
 
-### 5. 验证集群
+### 6. 验证集群
 
 ```
 # 也可使用 https://etc1:2379 域名

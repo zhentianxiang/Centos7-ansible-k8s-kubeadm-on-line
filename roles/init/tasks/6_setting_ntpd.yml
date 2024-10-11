@@ -16,8 +16,8 @@
     dest: /etc/ntp.conf
     line: "{{ item }}"
   with_items:
-    - "server ntp.aliyun.com"
-    - "server ntp1.aliyun.com"
+    - "server ntp.aliyun.com iburst"
+    - "server ntp1.aliyun.com iburst"
 
 - name: add ntpdate configration
   lineinfile:

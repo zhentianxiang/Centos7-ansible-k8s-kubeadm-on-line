@@ -24,7 +24,7 @@ apiServer:
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 kubernetesVersion: {{ k8s_version }}
-controlPlaneEndpoint: "{{ api_vip_hosts }}:16443"
+controlPlaneEndpoint: "{{ api_vip_hosts }}:{{ lb_port }}"
 imageRepository: "{{ Other_URL }}"
 networking:
   dnsDomain: cluster.local

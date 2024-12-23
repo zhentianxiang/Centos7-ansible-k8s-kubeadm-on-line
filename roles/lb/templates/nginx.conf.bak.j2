@@ -24,6 +24,8 @@ http {
     include /etc/nginx/mime.types;
     default_type application/octet-stream;
 
+    client_max_body_size 102400m;
+
     # HTTP Ingress-Nginx负载均衡
     upstream ingress-nginx-http {
         server 10.4.212.154:80;

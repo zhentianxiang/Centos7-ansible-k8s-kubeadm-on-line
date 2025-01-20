@@ -9,6 +9,7 @@ events {
 }
 
 http {
+
     log_format main '$remote_addr - $remote_user [$time_local] "$request" '
                      'Status: $status BodyBytesSent: $body_bytes_sent '
                      'Referer: "$http_referer" '
@@ -123,40 +124,6 @@ http {
             # 显示缓存状态
             add_header X-Cache-Status $upstream_cache_status;
         }
-
-          # 针对静态文件（JS、CSS、JSON、图片）缓存设置
-        location ~* \.(js|css|json|png|jpeg|gif|jpg|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|fbx|obj|mtl|)$ {
-            proxy_pass http://ingress-nginx-http;  # 上游 HTTP 集群
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-
-            # 启用缓存
-            proxy_cache my_cache;
-            proxy_cache_valid 200 24h;  # 设置缓存时长为 24 小时
-            proxy_cache_use_stale error timeout updating;
-
-            # 只缓存GET和HEAD请求
-            proxy_cache_methods GET HEAD;
-
-            # 如果后端响应500、502、503、504等错误时，仍然使用过期缓存
-            proxy_cache_use_stale http_502 http_500 http_503 http_504;
-
-            # 设置缓存键，使用host、uri和请求参数生成唯一的缓存键
-            proxy_cache_key $host$uri$is_args$args;
-
-            # 忽略 Cache-Control 和 Set-Cookie 头部，强制缓存
-            proxy_ignore_headers Set-Cookie Cache-Control;
-
-            # 针对不同响应码设置缓存时长
-            proxy_cache_valid 200 301 302 304 24h;
-            proxy_cache_valid 500 502 503 504 1m;
-
-            # 显示缓存状态
-            add_header X-Cache-Status $upstream_cache_status;
-        }
-
     }
 
     # HTTPS负载均衡
@@ -231,40 +198,6 @@ http {
             # 显示缓存状态
             add_header X-Cache-Status $upstream_cache_status;
         }
-
-        # 针对静态文件（JS、CSS、JSON、图片）缓存设置
-        location ~* \.(js|css|json|png|jpeg|gif|jpg|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|fbx|obj|mtl|)$ {
-            proxy_pass http://ingress-nginx-https;  # 上游 HTTP 集群
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-
-            # 启用缓存
-            proxy_cache my_cache;
-            proxy_cache_valid 200 24h;  # 设置缓存时长为 24 小时
-            proxy_cache_use_stale error timeout updating;
-
-            # 只缓存GET和HEAD请求
-            proxy_cache_methods GET HEAD;
-
-            # 如果后端响应500、502、503、504等错误时，仍然使用过期缓存
-            proxy_cache_use_stale http_502 http_500 http_503 http_504;
-
-            # 设置缓存键，使用host、uri和请求参数生成唯一的缓存键
-            proxy_cache_key $host$uri$is_args$args;
-
-            # 忽略 Cache-Control 和 Set-Cookie 头部，强制缓存
-            proxy_ignore_headers Set-Cookie Cache-Control;
-
-            # 针对不同响应码设置缓存时长
-            proxy_cache_valid 200 301 302 304 24h;
-            proxy_cache_valid 500 502 503 504 1m;
-
-            # 显示缓存状态
-            add_header X-Cache-Status $upstream_cache_status;
-        }
-
     }
 }
 
